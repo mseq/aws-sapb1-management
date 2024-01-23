@@ -22,6 +22,11 @@ LogInfo "Starting StartEnvironment Script $d $h"
 
 # if [ $res == $h ]; then
 
+    # Start HANA Instance
+    res=`aws ssm get-parameter --name 'HanaInstance-SAPB1-Environment' --output text --query 'Parameter.Value'`
+    LogInfo "Starting HANA Instance: $res"
+    res=`aws ec2 start-instances --instance-ids $res`
+
     # Check if the image was already created, then if not create image/bkp and update Parameter Store
     res=`aws ec2 describe-images --output text --query 'Images[*].ImageId' --filters "Name=name,Values=WinClient-IMG-$d"`
     if [ -z $res ]; then
@@ -44,12 +49,6 @@ LogInfo "Starting StartEnvironment Script $d $h"
     res=`aws ssm put-parameter --name 'CFN-NLB-WinCientAMI-Id' --type 'String' --value "$res" --overwrite`
     LogInfo "SSM Parameter Store Updated"
 
-    # Execute Cloud Formation Stack
-    res=`aws ssm get-parameter --name 'CFN-NLB-StackName' --output text --query 'Parameter.Value'`
-    url=`aws ssm get-parameter --name 'CFN-NLB-TemplateUrl' --output text --query 'Parameter.Value'`
-    LogInfo "Creating CloudFormation Stack $res"
-    res=`aws cloudformation create-stack --stack-name $res --template-url $url --capabilities CAPABILITY_NAMED_IAM --tags "Key=Department,Value=TI" "Key=Environment,Value=Production" "Key=Name,Value=SAP HANA WinClient ELB" "Key=Product,Value=SAP B1"`
-
     # Start NAT Instance 
     res=`aws ssm get-parameter --name 'NatInstance-SAPB1-Environment' --output text --query 'Parameter.Value'`
     LogInfo "Starting NAT Instance $res"
@@ -59,5 +58,11 @@ LogInfo "Starting StartEnvironment Script $d $h"
     res=`aws ssm get-parameter --name 'ADInstance-SAPB1-Environment' --output text --query 'Parameter.Value'`
     LogInfo "Starting AD Instance $res"
     res=`aws ec2 start-instances --instance-ids $res`
+
+    # Execute Cloud Formation Stack
+    res=`aws ssm get-parameter --name 'CFN-NLB-StackName' --output text --query 'Parameter.Value'`
+    url=`aws ssm get-parameter --name 'CFN-NLB-TemplateUrl' --output text --query 'Parameter.Value'`
+    LogInfo "Creating CloudFormation Stack $res"
+    res=`aws cloudformation create-stack --stack-name $res --template-url $url --capabilities CAPABILITY_NAMED_IAM --tags "Key=Department,Value=TI" "Key=Environment,Value=Production" "Key=Name,Value=SAP HANA WinClient ELB" "Key=Product,Value=SAP B1"`
 
 # fi
