@@ -32,7 +32,7 @@ LogInfo "Starting StartHana Script $d $h"
     LogInfo "Image state $state"
     while [ "$state" != "available" ]
     do
-        sleep 300s
+        sleep 30s
         state=`aws ec2 describe-images --query 'Images[*].State' --output text --filters "Name=image-id,Values=$res"`
         LogInfo "Image state $state"
     done
