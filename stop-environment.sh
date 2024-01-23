@@ -44,19 +44,11 @@ LogInfo "Starting StopEnvironment Script $d $h"
             res=`aws ec2 deregister-image --image-id "$resh"`
         fi
     done
-<<<<<<< HEAD
-=======
 
-    # # Shutdown NAT Instance 
-    # res=`aws ssm get-parameter --name 'NatInstance-SAPB1-Environment' --output text --query 'Parameter.Value'`
-    # LogInfo "Stoping NAT Instance: $res"
-    # res=`aws ec2 stop-instances --instance-ids "$res"`
->>>>>>> 83092a3fbefec48f7a59c9c810dfb225d29ee846
-
-    # # Shutdown AD Instance 
-    # res=`aws ssm get-parameter --name 'ADInstance-SAPB1-Environment' --output text --query 'Parameter.Value'`
-    # LogInfo "Stoping AD Instance: $res"
-    # res=`aws ec2 stop-instances --instance-ids "$res"`
+    # Shutdown AD Instance 
+    res=`aws ssm get-parameter --name 'ADInstance-SAPB1-Environment' --output text --query 'Parameter.Value'`
+    LogInfo "Stoping AD Instance: $res"
+    res=`aws ec2 stop-instances --instance-ids "$res"`
 
     # Shutdown WinClient Instance
     res=`aws ssm get-parameter --name 'CFN-NLB-WinClientInstance' --output text --query 'Parameter.Value'`
